@@ -206,6 +206,90 @@ Visit FlutterLibrary.com to Download the [Flutter e-commerce app template](https
 
 
 
+## 🚀 Offline Database & Advanced Discount Engine [New Update - Phase 4]
+
+We have integrated a full-featured, persistent offline storage layer using SQLite (`sqflite`) and a dynamic business-logic checkout & coupon calculator. This implementation elevates the template from a static UI mockup into a fully operational, offline-first application, while strictly adhering to Clean Architecture principles.
+
+### 🏗️ Clean Architecture File Map
+The new module is encapsulated under `lib/features/cart_wishlist/` and separated into independent, testable layers:
+
+```
+lib/features/cart_wishlist/
+├── domain/
+│   ├── models/
+│   │   ├── cart_item.dart              # Core domain representation of a cart item
+│   │   └── wishlist_item.dart          # Core domain representation of a wishlist item
+│   └── repositories/
+│       └── cart_wishlist_repository.dart # Abstract contract for persistence operations
+├── data/
+│   ├── datasources/
+│   │   └── cart_wishlist_local_datasource.dart # Direct SQLite raw query implementation
+│   └── repositories/
+│       └── cart_wishlist_repository_impl.dart # Bridge concrete repository implementation
+└── presentation/
+    └── controllers/
+        └── cart_wishlist_controller.dart # Singleton ChangeNotifier managing cart, wishlist state, and checkout pricing
+```
+
+---
+
+### 🗄️ SQLite Database Schema & Structure
+The local database `shop_database.db` contains two highly optimized relational tables:
+
+#### 1. Cart Table (`cart`)
+Tracks item selections, quantities, tailored product options (color, size), and initial/discounted product pricing:
+| Column Name | Data Type | Constraints | Description |
+|---|---|---|---|
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | Auto-incrementing unique identifier |
+| `title` | `TEXT` | `NOT_NULL` | Name of the product |
+| `brand` | `TEXT` | `NOT_NULL` | Product brand |
+| `image` | `TEXT` | `NOT_NULL` | Asset/network image path |
+| `price` | `REAL` | `NOT_NULL` | Base price |
+| `priceAfterDiscount` | `REAL` | `NULLABLE` | Promotional price if applicable |
+| `discountPercent` | `INTEGER` | `NULLABLE` | Percentage discount |
+| `selectedColor` | `INTEGER` | `NOT_NULL` | ARGB representation of user's selected color |
+| `selectedSize` | `TEXT` | `NOT_NULL` | User's selected size string (e.g., "S", "M", "L") |
+| `quantity` | `INTEGER` | `NOT_NULL` | Quantity added to cart (auto-increments if added again) |
+
+#### 2. Wishlist Table (`wishlist`)
+Tracks bookmarked products persistently:
+| Column Name | Data Type | Constraints | Description |
+|---|---|---|---|
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | Unique identifier |
+| `title` | `TEXT` | `NOT_NULL UNIQUE` | Unique product name (ensures unique bookmarks) |
+| `brand` | `TEXT` | `NOT_NULL` | Product brand |
+| `image` | `TEXT` | `NOT_NULL` | Thumbnail image |
+| `price` | `REAL` | `NOT_NULL` | Base price |
+| `priceAfterDiscount` | `REAL` | `NULLABLE` | Promotional price if applicable |
+| `discountPercent` | `INTEGER` | `NULLABLE` | Discount percentage |
+
+---
+
+### 💸 Dynamic Checkout & Coupon Engine
+The presentation layer contains a highly reactive singleton `CartWishlistController` that manages Cart quantities and executes instant billing computations:
+
+* **Dynamic Subtotal:** Sum of active cart items, automatically respecting promotional prices (`priceAfterDiscount`) where available:
+  $$\text{Subtotal} = \sum (\text{Active Price} \times \text{Quantity})$$
+* **Interactive Coupon Codes:** Users can key in standard coupons directly on the checkout screen:
+  * `FLUTTER10` — Grants a flat **10%** discount on subtotal.
+  * `WELCOME15` — Grants a flat **15%** discount on subtotal.
+  * `SUPER20` — Grants a flat **20%** discount on subtotal.
+* **Taxation Engine:** Applies a standard flat **5% tax** on the coupon-discounted total:
+  $$\text{Tax} = (\text{Subtotal} - \text{Discount}) \times 0.05$$
+* **Intelligent Shipping Fee:**
+  * Free shipping automatically triggers if the pre-discounted subtotal exceeds **$150.00**.
+  * Otherwise, a standard **$15.00** shipping fee is charged.
+* **Grand Total Formulation:**
+  $$\text{Grand Total} = \text{Subtotal} - \text{Coupon Discount} + \text{Tax} + \text{Shipping Fee}$$
+
+---
+
+### 🔄 Dynamic Reactive State Triggers
+All checkout-related visual elements are tied directly to the `CartWishlistController`'s state changes using highly efficient Flutter `ListenableBuilder`s instead of rebuilding the entire page hierarchy:
+1. **Navigation Badges:** The bottom navigation bar tracks cart count (sum of all quantities) and wishlist count, displaying floating notification badges dynamically over the icons.
+2. **Product Detail Syncing:** Adds instant database integration to "Add to Cart" and the heart icon. Detail screens dynamically toggle the icon's filled/outlined appearance depending on local database state.
+3. **Responsive Empty Views:** Empty cart/bookmark screens immediately display modern, descriptive placeholder views if local query arrays return empty, and dynamically morph into interactive checkout grids as soon as items are saved.
+
 </br >
 </br >
 <!-- Buttons -->
