@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:shop/components/product/product_card.dart';
-import 'package:shop/models/product_model.dart';
-import 'package:shop/route/route_constants.dart';
+import 'package:shopeasy/components/product/product_card.dart';
+import 'package:shopeasy/models/product_model.dart';
+import 'package:shopeasy/route/route_constants.dart';
 import '../../../../features/cart_wishlist/presentation/controllers/cart_wishlist_controller.dart';
 import '../../../constants.dart';
 

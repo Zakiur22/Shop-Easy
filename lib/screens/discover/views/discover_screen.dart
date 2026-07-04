@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shop/constants.dart';
-import 'package:shop/models/category_model.dart';
-import 'package:shop/screens/search/views/components/search_form.dart';
+import 'package:shopeasy/constants.dart';
+import 'package:shopeasy/models/category_model.dart';
+import 'package:shopeasy/screens/search/views/components/search_form.dart';
 
 import 'components/expansion_category.dart';
 

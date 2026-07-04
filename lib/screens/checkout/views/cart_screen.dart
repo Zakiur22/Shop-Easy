@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:shop/constants.dart';
+import 'package:shopeasy/constants.dart';
 import '../../../../features/cart_wishlist/presentation/controllers/cart_wishlist_controller.dart';
 import '../../../../features/cart_wishlist/domain/models/cart_item.dart';
-import 'package:shop/screens/product/views/components/product_quantity.dart';
+import 'package:shopeasy/screens/product/views/components/product_quantity.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});

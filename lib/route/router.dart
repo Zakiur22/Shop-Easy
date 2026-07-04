@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shop/entry_point.dart';
-import 'package:shop/models/product_model.dart';
+import 'package:shopeasy/entry_point.dart';
+import 'package:shopeasy/models/product_model.dart';
 
 import 'screen_export.dart';
 
