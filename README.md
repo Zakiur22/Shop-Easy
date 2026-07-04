@@ -4,7 +4,22 @@
 A premium, fluid, and state-of-the-art E-Commerce application template built using Flutter, modern Material 3 design, and an offline-first SQLite persistence engine.
 
 
+<p align="center">
+  <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80" alt="ShopEasy Apparel Banner" width="100%" style="border-radius: 8px;" />
+</p>
+
+
+<p align="center">
+  <img src="readme image/Build you shop app in days.png" alt="Build Your Shop App in Days Banner" style="width: 500px; height: auto; border-radius: 8px;" />
+</p>
+
+
 **ShopEasy** features a curated, harmonious visual architecture with seamless page transitions, interactive detail widgets, and a fully production-ready localized checkout calculation engine.
+
+
+<p align="center">
+  <img src="readme image/Device_frame.png" alt="ShopEasy Device Frame Mockup" style="width: 100%; height: auto; border-radius: 8px;" />
+</p>
 
 
 ---
