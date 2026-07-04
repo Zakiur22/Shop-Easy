@@ -7,6 +7,8 @@ import 'package:shop/screens/product/views/added_to_cart_message_screen.dart';
 import 'package:shop/screens/product/views/components/product_list_tile.dart';
 import 'package:shop/screens/product/views/location_permission_store_availability_screen.dart';
 import 'package:shop/screens/product/views/size_guide_screen.dart';
+import 'package:shop/models/product_model.dart';
+import '../../../../features/cart_wishlist/presentation/controllers/cart_wishlist_controller.dart';
 
 import '../../../constants.dart';
 import 'components/product_quantity.dart';
@@ -15,21 +17,70 @@ import 'components/selected_size.dart';
 import 'components/unit_price.dart';
 
 class ProductBuyNowScreen extends StatefulWidget {
-  const ProductBuyNowScreen({super.key});
+  const ProductBuyNowScreen({super.key, this.product});
+
+  final ProductModel? product;
 
   @override
   State<ProductBuyNowScreen> createState() => _ProductBuyNowScreenState();
 }
 
 class _ProductBuyNowScreenState extends State<ProductBuyNowScreen> {
+  late ProductModel _activeProduct;
+  int _quantity = 1;
+  int _selectedColorIndex = 2;
+  int _selectedSizeIndex = 1;
+
+  final List<Color> _colors = const [
+    Color(0xFFEA6262),
+    Color(0xFFB1CC63),
+    Color(0xFFFFBF5F),
+    Color(0xFF9FE1DD),
+    Color(0xFFC482DB),
+  ];
+
+  final List<String> _sizes = const ["S", "M", "L", "XL", "XXL"];
+
+  @override
+  void initState() {
+    super.initState();
+    _activeProduct = widget.product ??
+        ProductModel(
+          image: productDemoImg1,
+          title: "Sleeveless Ruffle",
+          brandName: "LIPSY LONDON",
+          price: 145,
+          priceAfetDiscount: 134.7,
+          dicountpercent: 7,
+        );
+  }
+
+  double get _unitPrice => _activeProduct.priceAfetDiscount ?? _activeProduct.price;
+  double get _totalPrice => _unitPrice * _quantity;
+
   @override
   Widget build(BuildContext context) {
+    final controller = CartWishlistController.instance;
+
     return Scaffold(
       bottomNavigationBar: CartButton(
-        price: 269.4,
+        price: _totalPrice,
         title: "Add to cart",
         subTitle: "Total price",
-        press: () {
+        press: () async {
+          await controller.addToCart(
+            title: _activeProduct.title,
+            brand: _activeProduct.brandName,
+            image: _activeProduct.image,
+            price: _activeProduct.price,
+            priceAfterDiscount: _activeProduct.priceAfetDiscount,
+            discountPercent: _activeProduct.dicountpercent,
+            color: _colors[_selectedColorIndex].toARGB32(),
+            size: _sizes[_selectedSizeIndex],
+            quantity: _quantity,
+          );
+
+          if (!context.mounted) return;
           customModalBottomSheet(
             context,
             isDismissible: false,
@@ -46,14 +97,52 @@ class _ProductBuyNowScreenState extends State<ProductBuyNowScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const BackButton(),
-                Text(
-                  "Sleeveless Ruffle",
-                  style: Theme.of(context).textTheme.titleSmall,
+                Expanded(
+                  child: Text(
+                    _activeProduct.title,
+                    style: Theme.of(context).textTheme.titleSmall,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: SvgPicture.asset("assets/icons/Bookmark.svg",
-                      color: Theme.of(context).textTheme.bodyLarge!.color),
+                ListenableBuilder(
+                  listenable: controller,
+                  builder: (context, _) {
+                    final isBookmarked = controller.wishlistItems.any(
+                      (item) => item.title == _activeProduct.title,
+                    );
+                    return IconButton(
+                      onPressed: () {
+                        controller.toggleWishlist(
+                          title: _activeProduct.title,
+                          brand: _activeProduct.brandName,
+                          image: _activeProduct.image,
+                          price: _activeProduct.price,
+                          priceAfterDiscount: _activeProduct.priceAfetDiscount,
+                          discountPercent: _activeProduct.dicountpercent,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              isBookmarked
+                                  ? "Removed from Wishlist"
+                                  : "Added to Wishlist!",
+                            ),
+                            backgroundColor: isBookmarked ? Colors.grey : primaryColor,
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      icon: SvgPicture.asset(
+                        "assets/icons/Bookmark.svg",
+                        colorFilter: ColorFilter.mode(
+                          isBookmarked ? primaryColor : Theme.of(context).textTheme.bodyLarge!.color!,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -61,12 +150,12 @@ class _ProductBuyNowScreenState extends State<ProductBuyNowScreen> {
           Expanded(
             child: CustomScrollView(
               slivers: [
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+                    padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
                     child: AspectRatio(
                       aspectRatio: 1.05,
-                      child: NetworkImageWithLoader(productDemoImg1),
+                      child: NetworkImageWithLoader(_activeProduct.image),
                     ),
                   ),
                 ),
@@ -76,16 +165,28 @@ class _ProductBuyNowScreenState extends State<ProductBuyNowScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: UnitPrice(
-                            price: 145,
-                            priceAfterDiscount: 134.7,
+                            price: _activeProduct.price * _quantity,
+                            priceAfterDiscount: _activeProduct.priceAfetDiscount != null
+                                ? _activeProduct.priceAfetDiscount! * _quantity
+                                : null,
                           ),
                         ),
                         ProductQuantity(
-                          numOfItem: 2,
-                          onIncrement: () {},
-                          onDecrement: () {},
+                          numOfItem: _quantity,
+                          onIncrement: () {
+                            setState(() {
+                              _quantity++;
+                            });
+                          },
+                          onDecrement: () {
+                            if (_quantity > 1) {
+                              setState(() {
+                                _quantity--;
+                              });
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -94,22 +195,24 @@ class _ProductBuyNowScreenState extends State<ProductBuyNowScreen> {
                 const SliverToBoxAdapter(child: Divider()),
                 SliverToBoxAdapter(
                   child: SelectedColors(
-                    colors: const [
-                      Color(0xFFEA6262),
-                      Color(0xFFB1CC63),
-                      Color(0xFFFFBF5F),
-                      Color(0xFF9FE1DD),
-                      Color(0xFFC482DB),
-                    ],
-                    selectedColorIndex: 2,
-                    press: (value) {},
+                    colors: _colors,
+                    selectedColorIndex: _selectedColorIndex,
+                    press: (value) {
+                      setState(() {
+                        _selectedColorIndex = value;
+                      });
+                    },
                   ),
                 ),
                 SliverToBoxAdapter(
                   child: SelectedSize(
-                    sizes: const ["S", "M", "L", "XL", "XXL"],
-                    selectedIndex: 1,
-                    press: (value) {},
+                    sizes: _sizes,
+                    selectedIndex: _selectedSizeIndex,
+                    press: (value) {
+                      setState(() {
+                        _selectedSizeIndex = value;
+                      });
+                    },
                   ),
                 ),
                 SliverPadding(

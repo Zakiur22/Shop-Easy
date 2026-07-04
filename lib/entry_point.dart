@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shop/constants.dart';
 import 'package:shop/route/screen_export.dart';
+import 'features/cart_wishlist/presentation/controllers/cart_wishlist_controller.dart';
 
 class EntryPoint extends StatefulWidget {
   const EntryPoint({super.key});
@@ -126,14 +127,61 @@ class _EntryPointState extends State<EntryPoint> {
               label: "Discover",
             ),
             BottomNavigationBarItem(
-              icon: svgIcon("assets/icons/Bookmark.svg"),
-              activeIcon:
-                  svgIcon("assets/icons/Bookmark.svg", color: primaryColor),
+              icon: ListenableBuilder(
+                listenable: CartWishlistController.instance,
+                builder: (context, _) {
+                  final count = CartWishlistController.instance.wishlistCount;
+                  return Badge(
+                    label: Text(count.toString()),
+                    isLabelVisible: count > 0,
+                    backgroundColor: primaryColor,
+                    textColor: Colors.white,
+                    child: svgIcon("assets/icons/Bookmark.svg"),
+                  );
+                },
+              ),
+              activeIcon: ListenableBuilder(
+                listenable: CartWishlistController.instance,
+                builder: (context, _) {
+                  final count = CartWishlistController.instance.wishlistCount;
+                  return Badge(
+                    label: Text(count.toString()),
+                    isLabelVisible: count > 0,
+                    backgroundColor: primaryColor,
+                    textColor: Colors.white,
+                    child: svgIcon("assets/icons/Bookmark.svg", color: primaryColor),
+                  );
+                },
+              ),
               label: "Bookmark",
             ),
             BottomNavigationBarItem(
-              icon: svgIcon("assets/icons/Bag.svg"),
-              activeIcon: svgIcon("assets/icons/Bag.svg", color: primaryColor),
+              icon: ListenableBuilder(
+                listenable: CartWishlistController.instance,
+                builder: (context, _) {
+                  final count = CartWishlistController.instance.cartCount;
+                  return Badge(
+                    label: Text(count.toString()),
+                    isLabelVisible: count > 0,
+                    backgroundColor: primaryColor,
+                    textColor: Colors.white,
+                    child: svgIcon("assets/icons/Bag.svg"),
+                  );
+                },
+              ),
+              activeIcon: ListenableBuilder(
+                listenable: CartWishlistController.instance,
+                builder: (context, _) {
+                  final count = CartWishlistController.instance.cartCount;
+                  return Badge(
+                    label: Text(count.toString()),
+                    isLabelVisible: count > 0,
+                    backgroundColor: primaryColor,
+                    textColor: Colors.white,
+                    child: svgIcon("assets/icons/Bag.svg", color: primaryColor),
+                  );
+                },
+              ),
               label: "Cart",
             ),
             BottomNavigationBarItem(

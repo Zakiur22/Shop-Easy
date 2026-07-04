@@ -6,8 +6,9 @@ import 'package:shop/components/custom_modal_bottom_sheet.dart';
 import 'package:shop/components/product/product_card.dart';
 import 'package:shop/constants.dart';
 import 'package:shop/screens/product/views/product_returns_screen.dart';
-
+import 'package:shop/models/product_model.dart';
 import 'package:shop/route/screen_export.dart';
+import '../../../../features/cart_wishlist/presentation/controllers/cart_wishlist_controller.dart';
 
 import 'components/notify_me_card.dart';
 import 'components/product_images.dart';
@@ -17,28 +18,42 @@ import '../../../components/review_card.dart';
 import 'product_buy_now_screen.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
-  const ProductDetailsScreen({super.key, this.isProductAvailable = true});
+  ProductDetailsScreen({
+    super.key,
+    this.isProductAvailable = true,
+    this.product,
+  });
 
   final bool isProductAvailable;
+  final ProductModel? product;
+
+  final ProductModel defaultProduct = ProductModel(
+    image: productDemoImg1,
+    title: "Sleeveless Ruffle",
+    brandName: "LIPSY LONDON",
+    price: 145,
+    priceAfetDiscount: 134.7,
+    dicountpercent: 7,
+  );
 
   @override
   Widget build(BuildContext context) {
+    final activeProduct = product ?? defaultProduct;
+    final controller = CartWishlistController.instance;
+
     return Scaffold(
       bottomNavigationBar: isProductAvailable
           ? CartButton(
-              price: 140,
+              price: activeProduct.priceAfetDiscount ?? activeProduct.price,
               press: () {
                 customModalBottomSheet(
                   context,
                   height: MediaQuery.of(context).size.height * 0.92,
-                  child: const ProductBuyNowScreen(),
+                  child: ProductBuyNowScreen(product: activeProduct),
                 );
               },
             )
-          :
-
-          /// If profuct is not available then show [NotifyMeCard]
-          NotifyMeCard(
+          : NotifyMeCard(
               isNotify: false,
               onChanged: (value) {},
             ),
@@ -49,22 +64,55 @@ class ProductDetailsScreen extends StatelessWidget {
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               floating: true,
               actions: [
-                IconButton(
-                  onPressed: () {},
-                  icon: SvgPicture.asset("assets/icons/Bookmark.svg",
-                      color: Theme.of(context).textTheme.bodyLarge!.color),
+                ListenableBuilder(
+                  listenable: controller,
+                  builder: (context, _) {
+                    final isBookmarked = controller.wishlistItems.any(
+                      (item) => item.title == activeProduct.title,
+                    );
+                    return IconButton(
+                      onPressed: () {
+                        controller.toggleWishlist(
+                          title: activeProduct.title,
+                          brand: activeProduct.brandName,
+                          image: activeProduct.image,
+                          price: activeProduct.price,
+                          priceAfterDiscount: activeProduct.priceAfetDiscount,
+                          discountPercent: activeProduct.dicountpercent,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              isBookmarked
+                                  ? "Removed from Wishlist"
+                                  : "Added to Wishlist!",
+                            ),
+                            backgroundColor: isBookmarked ? Colors.grey : primaryColor,
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      icon: SvgPicture.asset(
+                        "assets/icons/Bookmark.svg",
+                        colorFilter: ColorFilter.mode(
+                          isBookmarked ? primaryColor : Theme.of(context).textTheme.bodyLarge!.color!,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
-            const ProductImages(
-              images: [productDemoImg1, productDemoImg2, productDemoImg3],
+            ProductImages(
+              images: [activeProduct.image, productDemoImg2, productDemoImg3],
             ),
             ProductInfo(
-              brand: "LIPSY LONDON",
-              title: "Sleeveless Ruffle",
+              brand: activeProduct.brandName,
+              title: activeProduct.title,
               isAvailable: isProductAvailable,
               description:
-                  "A cool gray cap in soft corduroy. Watch me.' By buying cotton products from Lindex, you’re supporting more responsibly...",
+                  "A cool and premium product designed with modern high-quality materials. Durable, breathable fabric offering maximum elegance and flexibility for active lifestyle enthusiasts. By purchasing cotton products from us, you’re supporting more responsible production.",
               rating: 4.4,
               numOfReviews: 126,
             ),

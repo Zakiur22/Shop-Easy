@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shop/entry_point.dart';
+import 'package:shop/models/product_model.dart';
 
 import 'screen_export.dart';
 
@@ -131,8 +132,21 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case productDetailsScreenRoute:
       return MaterialPageRoute(
         builder: (context) {
-          bool isProductAvailable = settings.arguments as bool? ?? true;
-          return ProductDetailsScreen(isProductAvailable: isProductAvailable);
+          ProductModel? product;
+          bool isProductAvailable = true;
+          if (settings.arguments is bool) {
+            isProductAvailable = settings.arguments as bool;
+          } else if (settings.arguments is Map<String, dynamic>) {
+            final map = settings.arguments as Map<String, dynamic>;
+            isProductAvailable = map['isAvailable'] as bool? ?? true;
+            product = map['product'] as ProductModel?;
+          } else if (settings.arguments is ProductModel) {
+            product = settings.arguments as ProductModel;
+          }
+          return ProductDetailsScreen(
+            isProductAvailable: isProductAvailable,
+            product: product,
+          );
         },
       );
     case productReviewsScreenRoute:
