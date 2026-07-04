@@ -10,27 +10,77 @@ A premium, fluid, and state-of-the-art E-Commerce application template built usi
 ---
 
 
-## 🎨 Design & Aesthetic Excellence
+## 🚀 Technical Stack & Architecture
 
 
-ShopEasy is meticulously crafted to wow users at first glance, incorporating premium modern UI/UX design paradigms:
+This project is built using professional, scalable, and robust development technologies.
 
-* **Material 3 Engine:** Leverages the latest Material Design specifications, featuring dynamic color matching, responsive grids, and elegant, fluid bottom sheets.
-* **Micro-Animations:** Fluid interactive hover states, bouncy spring-based detail expansions, and responsive transitions that feel alive.
-* **AMOLED Optimized Mode:** Curated dark modes and high-contrast color palettes (using sophisticated HSL systems rather than plain browser defaults) to make your screen pop.
-* **Responsive Image Carousels:** High-fidelity product displays with interactive pagination indicator dots, swipe gestures, and soft parallax effects.
+
+### 🛠️ Core Technology Stack
+
+* **Framework:** Flutter SDK (Latest Stable Channel) & Dart (Latest Stable Channel)
+* **State Management:** ChangeNotifier and Provider State Patterns (`provider` package for modular state updates)
+* **Local Persistence:** SQLite Database (`sqflite` package) for managing on-device cart rows and wishlist structures.
+* **Layout Specification:** Complete Material 3 adaptation including responsive card systems, modern drawers, and custom navigation matrices.
+* **Mathematical Engines:** Customized rounding algorithms and double-precision tax/shipping calculation models.
+
+
+### 🏗️ Architecture & Folder Structure
+
+The application isolates functional layers cleanly. The persistent shopping cart and coupon voucher engines follow a strict **Clean Architecture** directory design, isolating pure business entities from layout states:
+
+```
+lib/
+├── features/
+│   └── shopping_cart/            # Clean Architecture Shopping Cart Module
+│       ├── domain/
+│       │   ├── models/           # Pure, immutable CartItem, WishlistItem, and Coupon entities
+│       │   └── repositories/     # Repository contracts defining SQLite transactions and voucher matches
+│       ├── data/
+│       │   ├── datasources/      # Concrete raw SQL query helpers and database migration triggers
+│       │   └── repositories/     # SQLite database repository implementations bridging domain contracts
+│       └── presentation/
+│           ├── controllers/      # CartController & WishlistController (ChangeNotifier) updating UI elements
+│           ├── pages/            # Curated Shopping Cart and Wishlist overlay views
+│           └── widgets/          # Checkout summary cards, voucher input blocks, and custom badges
+├── components/                   # Curated layout containers
+├── constants/                    # Standardized HSL color tokens and UI dimension scales
+├── screens/                      # Legacy Catalog, Product Details, and Home layouts
+└── main.dart                     # Main entrypoint establishing SQLite files and active ChangeNotifier providers
+```
 
 
 ---
 
 
-## ✨ Key Features & User Guide
+## 🛠️ Software Coding & Clean Code Principles
+
+
+To ensure high quality, maintainability, and clean code standards, we applied rigorous software principles:
+
+* **S.O.L.I.D. Architectural Guidelines:**
+  * **Single Responsibility (SRP):** The `Coupon` validator entity strictly parses and checks coupon thresholds; it does not display error alerts or affect database logs.
+  * **Open/Closed (OCP):** Easily add brand new promotional voucher calculations without altering the underlying Checkout controller class.
+  * **Liskov Substitution (LSP):** Base repository interfaces support seamless mocking during checkout unit tests.
+  * **Interface Segregation (ISP):** Keeping checkout computations isolated from general catalogue configurations.
+  * **Dependency Inversion (DIP):** UI Widgets communicate exclusively with abstract providers, resolving dependency implementations dynamically.
+* **DRY (Don't Repeat Yourself):** Highly reusable image carousels, custom item badges, and product cards are extracted into central components.
+* **Separation of Concerns:** Loose coupling between visual state elements and hardware persistence databases.
+* **Type Safety & Precision:** Strictly avoids floats for currency calculations, utilizing double-precision models to safeguard checkout values against rounding issues.
+
+
+---
+
+
+## ✨ Extensive Features & Subfeatures Guide
 
 
 ### 🛒 Persistent Shopping Cart
 
-* **SQLite-Backed Persistence:** Ensures the user's cart is fully saved on-device and persists perfectly between app launches.
-* **Composite Key Increments:** Automatically groups duplicates by product specifications (e.g., specific sizes, colors) with reactive quantity controllers.
+* **SQLite-Backed Persistence:** 
+  Ensures the user's cart is fully saved on-device and persists perfectly between app launches.
+* **Composite Key Increments:** 
+  Automatically groups duplicates by product specifications (e.g., specific sizes, colors) with reactive quantity controllers.
 * **🔍 How to Access & Use:**
   1. Browse the home page catalog and tap on any product card (e.g., "Premium Leather Jacket") to view its details.
   2. Select your desired specifications (Size, Color, Quantity) and tap **Add to Cart**.
@@ -42,8 +92,10 @@ ShopEasy is meticulously crafted to wow users at first glance, incorporating pre
 
 ### 💖 Interactive Wishlist
 
-* **One-Tap Bookmarking:** Tap the animated floating heart icon to instantly bookmark products to the offline wishlist database.
-* **Dynamic Badges:** Emits instant state notifications using `ChangeNotifier` to update badge counts on the bottom navigation bar without layout rebuilds.
+* **One-Tap Bookmarking:** 
+  Tap the animated floating heart icon to instantly bookmark products to the offline wishlist database.
+* **Dynamic Badges:** 
+  Emits instant state notifications using `ChangeNotifier` to update badge counts on the bottom navigation bar without layout rebuilds.
 * **🔍 How to Access & Use:**
   1. When browsing products, tap the **Heart Icon** in the top right corner of any product card.
   2. The icon will fill with a vibrant crimson color, indicating it has been added to your favorites list.
@@ -54,8 +106,10 @@ ShopEasy is meticulously crafted to wow users at first glance, incorporating pre
 
 ### 🏷️ Intelligent Discount & Checkout Engine
 
-* **Mathematical Coupon Verification:** Easily apply promotional vouchers to get dynamic percentage discounts.
-* **Smart Order Calculation:** Handles local states, taxes, shipping fees, and active promotional vouchers.
+* **Mathematical Coupon Verification:** 
+  Easily apply promotional vouchers to get dynamic percentage discounts.
+* **Smart Order Calculation:** 
+  Handles local states, taxes, shipping fees, and active promotional vouchers.
 * **🔍 How to Access & Use:**
   1. Open your **Shopping Cart**.
   2. Locate the **Promo Code** text field under the cart ledger.
@@ -69,29 +123,6 @@ ShopEasy is meticulously crafted to wow users at first glance, incorporating pre
      
   4. Tap **Apply**. The checkout engine will verify your eligibility (minimum spend thresholds), apply the discount, compute a flat 5% sales tax, and output your final price.
   5. **Free Shipping Threshold:** Note that standard shipping ($15.00) is automatically waived if your cart subtotal exceeds **$150.00**!
-
-
----
-
-
-## 🏗️ Architectural Blueprint
-
-
-The SQLite database and promotional engine follow a strict, decoupled **Clean Architecture** layout under `lib/features/shopping_cart/`:
-
-```
-lib/features/shopping_cart/
-├── domain/
-│   ├── models/           # Pure, immutable CartItem, WishlistItem, and Coupon entities
-│   └── repositories/     # Repository contracts defining SQLite transactions and voucher matches
-├── data/
-│   ├── datasources/      # Concrete raw SQL query helpers and database migration triggers
-│   └── repositories/     # SQLite database repository implementations bridging domain contracts
-└── presentation/
-    ├── controllers/      # CartController & WishlistController (ChangeNotifier) updating UI elements
-    ├── pages/            # Curated Shopping Cart and Wishlist overlay views
-    └── widgets/          # Checkout summary cards, voucher input blocks, and custom badges
-```
 
 
 ---
@@ -139,7 +170,7 @@ We would like to express our sincere gratitude to the original creators and main
 
 
 > [!NOTE]
-> This repository represents an **extensive, premium upgrade** from the original codebase. It introduces a modernized responsive Material 3 layout, high-performance SQLite-backed cart and wishlist persistence engines, and an advanced checkout discount coupon verification suite following strict S.O.L.I.D. Clean Architecture standards.
+> We have extensively worked on their original codebase, refactored the underlying logic, updated legacy dependencies, resolved complex build and runtime errors, and introduced many advanced modern enhancements. These upgrades include an interactive Checkout Coupon Verification Engine and SQLite Shopping Cart persistence pipeline built following strict Clean Architecture guidelines, a state-notifying Wishlist sync with badge updates, and elegant Material 3 parallax product details layouts to create a highly optimized, state-of-the-art, and production-ready portfolio application.
 
 
 ---
