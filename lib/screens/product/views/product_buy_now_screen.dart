@@ -18,7 +18,7 @@ class ProductBuyNowScreen extends StatefulWidget {
   const ProductBuyNowScreen({super.key});
 
   @override
-  _ProductBuyNowScreenState createState() => _ProductBuyNowScreenState();
+  State<ProductBuyNowScreen> createState() => _ProductBuyNowScreenState();
 }
 
 class _ProductBuyNowScreenState extends State<ProductBuyNowScreen> {
